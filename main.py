@@ -10,6 +10,19 @@ app = FastAPI()
 Base = declarative_base()
 # Database setup
 DATABASE_URL = "sqlite:///./id_card.db"
+# Check if the database file exists, and if not, create it
+if not os.path.exists("id_card.db"):
+    engine = create_engine(DATABASE_URL)
+    engine.execute("""
+    CREATE TABLE id_cards (
+        id INTEGER PRIMARY KEY,
+        name TEXT,
+        bank_name TEXT,
+        phone_number TEXT UNIQUE,
+        date_of_birth TEXT,
+        blood_group TEXT
+    )
+    """)
 database = Database(DATABASE_URL)
 
 engine = create_engine(DATABASE_URL)
