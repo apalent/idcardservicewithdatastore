@@ -4,7 +4,7 @@ from sqlalchemy import create_engine, Column, String, Integer, update
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from databases import Database
-
+import os 
 # Create a FastAPI instance
 app = FastAPI()
 Base = declarative_base()
