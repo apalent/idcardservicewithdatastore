@@ -1,32 +1,15 @@
-from fastapi import FastAPI, HTTPException, Path
+from fastapi import FastAPI, HTTPException, Path, File, UploadFile
 from pydantic import BaseModel
-from sqlalchemy import create_engine, Column, String, Integer, update
+from sqlalchemy import create_engine, Column, String, Integer, update, MetaData, Table, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from databases import Database
-import os 
+import os
+from sqlalchemy import inspect
+
 # Create a FastAPI instance
 app = FastAPI()
 Base = declarative_base()
-# Database setup
-DATABASE_URL = "sqlite:///./id_card.db"
-# Check if the database file exists, and if not, create it
-if not os.path.exists("id_card.db"):
-    engine = create_engine(DATABASE_URL)
-    engine.execute("""
-    CREATE TABLE id_cards (
-        id INTEGER PRIMARY KEY,
-        name TEXT,
-        bank_name TEXT,
-        phone_number TEXT UNIQUE,
-        date_of_birth TEXT,
-        blood_group TEXT
-    )
-    """)
-database = Database(DATABASE_URL)
-
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Define the IDCard model
 class IDCard(Base):
@@ -38,6 +21,34 @@ class IDCard(Base):
     phone_number = Column(String, unique=True, index=True)
     date_of_birth = Column(String)
     blood_group = Column(String)
+
+# Check if the database file exists, and create it if it doesn't
+if not os.path.exists("id_card.db"):
+    open("id_card.db", "w").close()
+
+# Database setup
+DATABASE_URL = "sqlite:///./id_card.db"
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+database = Database(DATABASE_URL)
+
+# Create the metadata and the table if it doesn't exist
+metadata = MetaData()
+id_cards_table = Table(
+    "id_cards",
+    metadata,
+    Column("id", Integer, primary_key=True, index=True),
+    Column("name", String, index=True),
+    Column("bank_name", String),
+    Column("phone_number", String, unique=True, index=True),
+    Column("date_of_birth", String),
+    Column("blood_group", String),
+    extend_existing=True,
+)
+
+# Create the table if it doesn't exist
+if not inspect(engine).has_table("id_cards"):
+    metadata.create_all(engine)
 
 # Pydantic model for ID card data
 class IDCardCreate(BaseModel):
