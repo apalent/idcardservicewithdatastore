@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Path, File, UploadFile
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, String, Integer, update, MetaData, Table, text
 from sqlalchemy.orm import sessionmaker
@@ -110,7 +110,7 @@ async def create_id_card(id_card: IDCardCreate):
 
 # Endpoint to get ID card details by phone number
 @app.get("/id_card/{phone_number}", response_model=IDCardResponse)
-async def read_id_card(phone_number: str = Path(..., title="The phone number of the ID card owner")):
+async def read_id_card(phone_number: str):
     id_card_record = await database.fetch_one(
         "SELECT * FROM id_cards WHERE phone_number = :phone_number",
         values={"phone_number": phone_number},
@@ -119,6 +119,7 @@ async def read_id_card(phone_number: str = Path(..., title="The phone number of 
         raise HTTPException(status_code=404, detail="ID card not found")
     return IDCardResponse(**id_card_record)
 
+# Run the FastAPI app
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8080)
