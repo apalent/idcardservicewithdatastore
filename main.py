@@ -11,7 +11,7 @@ from sqlalchemy import inspect
 app = FastAPI()
 Base = declarative_base()
 
-# Add the CORS middleware to allow any origin
+# Add the CORS middleware to allow any origin to test
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Replace with specific origins if needed
