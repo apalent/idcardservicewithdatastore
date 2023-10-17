@@ -1,13 +1,13 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from sqlalchemy import create_engine, Column, String, Integer, update, MetaData, Table, text
+from sqlalchemy import create_engine, Column, String, Integer, MetaData, Table
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from databases import Database
 import os
 from sqlalchemy import inspect
 
-# Create a FastAPI instance here
+# Create a FastAPI instance
 app = FastAPI()
 Base = declarative_base()
 
@@ -21,6 +21,7 @@ class IDCard(Base):
     phone_number = Column(String, unique=True, index=True)
     date_of_birth = Column(String)
     blood_group = Column(String)
+    address = Column(String)  # Add the "address" field
 
 # Check if the database file exists, and create it if it doesn't
 if not os.path.exists("id_card.db"):
@@ -43,6 +44,7 @@ id_cards_table = Table(
     Column("phone_number", String, unique=True, index=True),
     Column("date_of_birth", String),
     Column("blood_group", String),
+    Column("address", String),  # Add the "address" field
     extend_existing=True,
 )
 
@@ -57,6 +59,7 @@ class IDCardCreate(BaseModel):
     phone_number: str
     date_of_birth: str
     blood_group: str
+    address: str  # Add the "address" field
 
 class IDCardResponse(BaseModel):
     id: int
@@ -65,6 +68,7 @@ class IDCardResponse(BaseModel):
     phone_number: str
     date_of_birth: str
     blood_group: str
+    address: str  # Add the "address" field
 
 # Endpoint to save ID card details
 @app.post("/id_card/", response_model=IDCardResponse)
@@ -83,7 +87,8 @@ async def create_id_card(id_card: IDCardCreate):
                 f"name = :name, "
                 f"bank_name = :bank_name, "
                 f"date_of_birth = :date_of_birth, "
-                f"blood_group = :blood_group "
+                f"blood_group = :blood_group, "
+                f"address = :address "  # Include the "address" field
                 f"WHERE phone_number = :phone_number"
             )
             await database.execute(
@@ -97,8 +102,8 @@ async def create_id_card(id_card: IDCardCreate):
         else:
             # If the phone number doesn't exist, insert a new record
             query = (
-                "INSERT INTO id_cards (name, bank_name, phone_number, date_of_birth, blood_group) "
-                "VALUES (:name, :bank_name, :phone_number, :date_of_birth, :blood_group)"
+                "INSERT INTO id_cards (name, bank_name, phone_number, date_of_birth, blood_group, address) "
+                "VALUES (:name, :bank_name, :phone_number, :date_of_birth, :blood_group, :address)"  # Include the "address" field
             )
             last_record_id = await database.execute(query, values=id_card.dict())
             id_card_record = await database.fetch_one(
