@@ -7,7 +7,7 @@ from databases import Database
 import os
 from sqlalchemy import inspect
 
-# Create a FastAPI instance
+# Create a FastAPI instance here
 app = FastAPI()
 Base = declarative_base()
 
