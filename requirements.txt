@@ -36,8 +36,6 @@ praw
 prawcore
 protobuf
 pyarrow
-pydantic
-pydantic-core
 pydeck
 Pygments
 python-dateutil
