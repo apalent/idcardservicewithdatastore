@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, String, Integer, MetaData, Table, text
 from sqlalchemy.orm import sessionmaker
@@ -11,7 +12,7 @@ from sqlalchemy import inspect
 app = FastAPI()
 Base = declarative_base()
 
-# Add the CORS middleware to allow any origin to test
+# Add the CORS middleware to allow any origin
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Replace with specific origins if needed
