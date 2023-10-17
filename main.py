@@ -15,7 +15,7 @@ Base = declarative_base()
 # Add the CORS middleware to allow any origin
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace with specific origins if needed
+    allow_origins=["*"],  
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=True,
