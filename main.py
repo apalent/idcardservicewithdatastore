@@ -167,6 +167,21 @@ async def delete_id_card(phone_number: str):
 
     return "ID card deleted successfully"
 
+@app.post("/copy_data_from_json/")
+async def copy_data_from_json(file: UploadFile = File(...)):
+    contents = await file.read()
+
+    # Try decoding the content using different encodings
+    try:
+        decoded_content = contents.decode('utf-8')
+    except UnicodeDecodeError:
+        try:
+            decoded_content = contents.decode('latin-1')
+        except UnicodeDecodeError:
+            decoded_content = contents.decode('iso-8859-1')
+   
+       return " successful"
+
 # Run the FastAPI app
 if __name__ == "__main__":
     import uvicorn
