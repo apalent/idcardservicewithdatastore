@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException
+import csv
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, String, Integer, MetaData, Table, text
@@ -165,6 +166,52 @@ async def delete_id_card(phone_number: str):
 
     return "ID card deleted successfully"
 
+
+# Endpoint to copy data from CSV file
+@app.post("/copy_data_from_csv/")
+async def copy_data_from_csv(file: UploadFile = File(...)):
+    # Check if the uploaded file is a CSV file
+    if file.filename.endswith('.csv'):
+        # Open the CSV file
+        contents = await file.read()
+        decoded_content = contents.decode('utf-8').splitlines()
+        csv_reader = csv.DictReader(decoded_content)
+
+        async with database.transaction():
+            # Iterate over each row in the CSV file
+            for row in csv_reader:
+                # Check if the phone number already exists in the database
+                existing_record = await database.fetch_one(
+                    "SELECT * FROM id_cards WHERE phone_number = :phone_number",
+                    values={"phone_number": row["phone_number"]},
+                )
+
+                if existing_record:
+                    # If the phone number exists, update the existing record
+                    query = (
+                        f"UPDATE id_cards SET "
+                        f"name = :name, "
+                        f"bank_name = :bank_name, "
+                        f"blood_group = :blood_group, "
+                        f"address = :address, "
+                        f"branch = :branch " 
+                        f"WHERE phone_number = :phone_number"
+                    )
+                    await database.execute(
+                        query,
+                        values=row,
+                    )
+                else:
+                    # If the phone number doesn't exist, insert a new record
+                    query = (
+                        "INSERT INTO id_cards (name, bank_name, phone_number, blood_group, address, branch) "
+                        "VALUES (:name, :bank_name, :phone_number, :blood_group, :address, :branch)" 
+                    )
+                    await database.execute(query, values=row)
+
+        return {"message": "Data copied from CSV successfully"}
+    else:
+        raise HTTPException(status_code=400, detail="Uploaded file is not a CSV file")
 
 # Run the FastAPI app
 if __name__ == "__main__":
