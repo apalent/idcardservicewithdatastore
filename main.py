@@ -170,24 +170,16 @@ async def delete_id_card(phone_number: str):
 @app.post("/copy_data_from_json/")
 async def copy_data_from_json():
 # Sample JSON data
-    json_data = [
-        {
-            "name": "John Doe",
-            "bank_name": "ABC Bank",
-            "phone_number": "1234567890",
-            "blood_group": "O+",
-            "address": "123 Main St",
-            "branch": "Downtown"
-        },
-        {
-            "name": "Jane Smith",
-            "bank_name": "XYZ Bank",
-            "phone_number": "9876543210",
-            "blood_group": "A-",
-            "address": "456 Elm St",
-            "branch": "Uptown"
-        }
-    ]
+    # Fetch JSON data from environment variable
+    json_data_str = os.getenv("JSON_DATA")
+    if not json_data_str:
+        return {"error": "JSON_DATA environment variable not found"}
+
+    # Load JSON data
+    try:
+        json_data = json.loads(json_data_str)
+    except json.JSONDecodeError as e:
+        return {"error": "Invalid JSON format"}
     # Process the JSON data
     for item in json_data:
         # Extract relevant fields from the JSON data
