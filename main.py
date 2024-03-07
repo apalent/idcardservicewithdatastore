@@ -223,7 +223,7 @@ async def copy_data_from_json():
                             "blood_group": blood_group, "address": address, "branch": branch},
                 )
 
-    return {"message": "Data copied from JSON file successfully"}
+    return {"message": "Data copied from env file successfully"}
 
 
 # Run the FastAPI app
