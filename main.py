@@ -168,10 +168,71 @@ async def delete_id_card(phone_number: str):
     return "ID card deleted successfully"
 
 @app.post("/copy_data_from_json/")
-async def copy_data_from_json(file: UploadFile = File(...)):
-    
+async def copy_data_from_json():
+# Sample JSON data
+    json_data = [
+        {
+            "name": "John Doe",
+            "bank_name": "ABC Bank",
+            "phone_number": "1234567890",
+            "blood_group": "O+",
+            "address": "123 Main St",
+            "branch": "Downtown"
+        },
+        {
+            "name": "Jane Smith",
+            "bank_name": "XYZ Bank",
+            "phone_number": "9876543210",
+            "blood_group": "A-",
+            "address": "456 Elm St",
+            "branch": "Uptown"
+        }
+    ]
+    # Process the JSON data
+    for item in json_data:
+        # Extract relevant fields from the JSON data
+        if all(field in item for field in ["name", "bank_name", "phone_number", "blood_group", "address", "branch"]):
+            name = item["name"]
+            bank_name = item["bank_name"]
+            phone_number = item["phone_number"]
+            blood_group = item["blood_group"]
+            address = item["address"]
+            branch = item["branch"]
+            # Check if the phone number already exists in the database
+            existing_record = await database.fetch_one(
+                "SELECT * FROM id_cards WHERE phone_number = :phone_number",
+                values={"phone_number": phone_number},
+            )
+            if existing_record:
+                # If the phone number exists, update the existing record
+                query = (
+                    f"UPDATE id_cards SET "
+                    f"name = :name, "
+                    f"bank_name = :bank_name, "
+                    f"blood_group = :blood_group, "
+                    f"address = :address, "  # Include the "address" field
+                    f"branch = :branch "  # Include the "branch" field
+                    f"WHERE phone_number = :phone_number"
+                )
+                await database.execute(
+                    query,
+                    values={"name": name, "bank_name": bank_name, "blood_group": blood_group,
+                            "address": address, "branch": branch, "phone_number": phone_number},
+                )
+            else:
+                # If the phone number doesn't exist, insert a new record
+                query = (
+                    "INSERT INTO id_cards (name, bank_name, phone_number, blood_group, address, branch) "
+                    "VALUES (:name, :bank_name, :phone_number, :blood_group, :address, :branch)"  # Include the "address" and "branch" fields
+                )
+                await database.execute(
+                    query,
+                    values={"name": name, "bank_name": bank_name, "phone_number": phone_number,
+                            "blood_group": blood_group, "address": address, "branch": branch},
+                )
 
-       return " successful"
+    return {"message": "Data copied from JSON file successfully"}
+
 
 # Run the FastAPI app
 if __name__ == "__main__":
