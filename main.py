@@ -166,6 +166,22 @@ async def delete_id_card(phone_number: str):
         )
 
     return "ID card deleted successfully"
+    
+@app.delete("/delete_all_id_cards/", response_model=str)
+async def delete_all_id_cards():
+    async with database.transaction():
+        # Check if any records exist in the id_cards table
+        existing_records = await database.fetch_all("SELECT * FROM id_cards")
+
+        # If no records found, return appropriate message
+        if not existing_records:
+            return "No ID cards found to delete"
+
+        # If records found, delete all records from the id_cards table
+        await database.execute("DELETE FROM id_cards")
+
+    return "All ID cards deleted successfully"
+
 
 @app.post("/copy_data_from_json/")
 async def copy_data_from_json():
