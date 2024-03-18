@@ -185,7 +185,7 @@ async def delete_all_id_cards():
 
 @app.post("/copy_data_from_json/")
 async def copy_data_from_json(json_data_str: str):
-    # Attempt to parse the JSON data from the input string
+    # Attempt to parse the JSON data from the input string  .
     try:
         customer_data = json.loads(json_data_str)
     except json.JSONDecodeError as e:
