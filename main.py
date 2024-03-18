@@ -185,7 +185,7 @@ async def delete_all_id_cards():
 
 @app.post("/copy_data_from_json/")
 async def copy_data_from_json(json_data_str: str):
-    # Attempt to parse the JSON data from the input string  .
+    # Attempt to parse the JSON data from the input string
     try:
         customer_data = json.loads(json_data_str)
     except json.JSONDecodeError as e:
@@ -198,12 +198,14 @@ async def copy_data_from_json(json_data_str: str):
         bank_name = item.get("bank_name")
         phone_number = item.get("phone_number")
         blood_group = item.get("blood_group")
-        date_of_birth = item.get("date_of_birth")
         address = item.get("address")
         branch = item.get("branch")
+        date_of_birth = item.get("date_of_birth")  # This may be None
 
-        # Check if all required fields are present
-        if not all([name, bank_name, phone_number, blood_group, address, branch, date_of_birth ]):
+        # Here you can decide how to handle a None date_of_birth, e.g., use a default date, or continue as is
+
+        # Check if all required fields are present (excluding date_of_birth if it's optional)
+        if not all([name, bank_name, phone_number, blood_group, address, branch]):
             # Skip the record or handle missing fields as needed
             continue
 
@@ -213,37 +215,38 @@ async def copy_data_from_json(json_data_str: str):
             values={"phone_number": phone_number},
         )
         if existing_record:
-            # If the phone number exists, update the existing record
+            # If the phone number exists, update the existing record, including date_of_birth handling
             query = (
                 "UPDATE id_cards SET "
                 "name = :name, "
                 "bank_name = :bank_name, "
                 "blood_group = :blood_group, "
                 "address = :address, "
-                "branch = :branch "
-                "date_of_birth = :date_of_birth"
+                "branch = :branch, "
+                "date_of_birth = :date_of_birth "  # Include date_of_birth in the update
                 "WHERE phone_number = :phone_number"
             )
             await database.execute(
                 query,
                 values={"name": name, "bank_name": bank_name, "blood_group": blood_group,
-                        "address": address, "branch": branch, "phone_number": phone_number, "date_of_birth":date_of_birth},
+                        "address": address, "branch": branch, "phone_number": phone_number,
+                        "date_of_birth": date_of_birth},
             )
         else:
-            # If the phone number doesn't exist, insert a new record
+            # If the phone number doesn't exist, insert a new record, including date_of_birth
             query = (
-                "INSERT INTO id_cards (name, bank_name, phone_number,date_of_birth, blood_group, address, branch) "
+                "INSERT INTO id_cards (name, bank_name, phone_number, blood_group, address, branch, date_of_birth) "
                 "VALUES (:name, :bank_name, :phone_number, :blood_group, :address, :branch, :date_of_birth)"
             )
             await database.execute(
                 query,
-                values={"name": name, "bank_name": bank_name, "phone_number": phone_number, "date_of_birth": date_of_birth,
-                        "blood_group": blood_group, "address": address, "branch": branch},
+                values={"name": name, "bank_name": bank_name, "phone_number": phone_number,
+                        "blood_group": blood_group, "address": address, "branch": branch,
+                        "date_of_birth": date_of_birth},
             )
 
     return {"message": "Data processed successfully"}
-
-
+    
 # Run the FastAPI app
 if __name__ == "__main__":
     import uvicorn
