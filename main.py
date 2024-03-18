@@ -198,11 +198,12 @@ async def copy_data_from_json(json_data_str: str):
         bank_name = item.get("bank_name")
         phone_number = item.get("phone_number")
         blood_group = item.get("blood_group")
+        date_of_birth = item.get("date_of_birth")
         address = item.get("address")
         branch = item.get("branch")
 
         # Check if all required fields are present
-        if not all([name, bank_name, phone_number, blood_group, address, branch]):
+        if not all([name, bank_name, phone_number, blood_group, address, branch, date_of_birth ]):
             # Skip the record or handle missing fields as needed
             continue
 
@@ -220,22 +221,23 @@ async def copy_data_from_json(json_data_str: str):
                 "blood_group = :blood_group, "
                 "address = :address, "
                 "branch = :branch "
+                "date_of_birth = :date_of_birth"
                 "WHERE phone_number = :phone_number"
             )
             await database.execute(
                 query,
                 values={"name": name, "bank_name": bank_name, "blood_group": blood_group,
-                        "address": address, "branch": branch, "phone_number": phone_number},
+                        "address": address, "branch": branch, "phone_number": phone_number, "date_of_birth":date_of_birth},
             )
         else:
             # If the phone number doesn't exist, insert a new record
             query = (
-                "INSERT INTO id_cards (name, bank_name, phone_number, blood_group, address, branch) "
-                "VALUES (:name, :bank_name, :phone_number, :blood_group, :address, :branch)"
+                "INSERT INTO id_cards (name, bank_name, phone_number,date_of_birth, blood_group, address, branch) "
+                "VALUES (:name, :bank_name, :phone_number, :blood_group, :address, :branch, :date_of_birth)"
             )
             await database.execute(
                 query,
-                values={"name": name, "bank_name": bank_name, "phone_number": phone_number,
+                values={"name": name, "bank_name": bank_name, "phone_number": phone_number, "date_of_birth": date_of_birth,
                         "blood_group": blood_group, "address": address, "branch": branch},
             )
 
