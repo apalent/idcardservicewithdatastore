@@ -182,13 +182,6 @@ async def delete_all_id_cards():
 
     return "All ID cards deleted successfully"
 
-
-from fastapi import FastAPI, HTTPException
-from typing import List
-import json
-
-app = FastAPI()
-
 @app.post("/copy_data_from_json/")
 async def copy_data_from_json(json_data_str: str):
     # Attempt to parse the JSON data from the input string
