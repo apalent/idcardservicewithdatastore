@@ -235,14 +235,13 @@ async def copy_data_from_json(json_data_str: str):
         else:
             # If the phone number doesn't exist, insert a new record, including date_of_birth
             query = (
-                "INSERT INTO id_cards (name, bank_name, phone_number, blood_group, address, branch, date_of_birth) "
-                "VALUES (:name, :bank_name, :phone_number, :blood_group, :address, :branch, :date_of_birth)"
+                "INSERT INTO id_cards (name, bank_name, phone_number, date_of_birth blood_group, address, branch) "
+                "VALUES (:name, :bank_name, :phone_number,:date_of_birth :blood_group, :address, :branch)"
             )
             await database.execute(
                 query,
-                values={"name": name, "bank_name": bank_name, "phone_number": phone_number,
-                        "blood_group": blood_group, "address": address, "branch": branch,
-                        "date_of_birth": date_of_birth},
+                values={"name": name, "bank_name": bank_name, "phone_number": phone_number, "date_of_birth": date_of_birth
+                        "blood_group": blood_group, "address": address, "branch": branch},
             )
 
     return {"message": "Data processed successfully"}
